@@ -2,10 +2,13 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "[![Actions Status](https://github.com/Fedinyak/fullstack-javascript-project-4/workflows/hexlet-check/badge.svg)](https://github.com/Fedinyak/fullstack-javascript-project-4/actions)",
-  "main": "index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "page-loader": "bin/page-loader.js"
   },
   "repository": {
     "type": "git",
@@ -18,8 +21,13 @@
   },
   "homepage": "https://github.com/Fedinyak/fullstack-javascript-project-4#readme",
   "devDependencies": {
+    "commander": "^10.0.0",
     "eslint": "^8.34.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.27.5"
+    "eslint-plugin-import": "^2.27.5",
+    "nock": "^13.3.0"
+  },
+  "dependencies": {
+    "axios": "^1.1.3"
   }
 }

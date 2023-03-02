@@ -8,9 +8,11 @@ jobs:
   build:
     # операционная система для работы воркфлоу
     runs-on: ubuntu-latest
+
     strategy:
-    matrix:
-      node-version: [16.x]
+      matrix:
+        node-version: [16.x]
+
     steps: # список шагов, которые надо выполнить
       # экшен, выполняет какую-то задачу
       # checkout – клонирует репозиторий

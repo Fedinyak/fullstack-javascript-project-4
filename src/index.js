@@ -44,28 +44,31 @@ const copySite = (outputPath = cwd(), url) => {
   // console.log(dirPath, 'dirPathhhhhh1');
   // console.log(cwd(), 'dirPathhhhhhh cwd');
   let data;
-  return axios.get(url, { responseType: 'arraybuffer' })
-    .then((response) => {
-      data = response.data;
-    })
-    // console.log(response);
-    .then(() => fs.access(outputPath).catch(() => fs.mkdir(outputPath, { recursive: true })))
-    .then(() => {
-      // handle success
-      // fs.writeFile('outputPath7.txt', 'response');
-      // console.log(dirPath, 'dirPathhhhhh2');
-      // return fs.writeFile(dirPath, response.data);
-      console.log('3 TRY');
-      return fs.writeFile(dirPath, data);
-      // console.log(response.data);
-      // console.log(response.statusText);
-      // console.log(response.headers);
-      // console.log(response.config);
-    })
-    .catch((error) => {
-      // handle error
-      console.log(error);
-    });
+  return (
+    axios
+      .get(url, { responseType: 'arraybuffer' })
+      .then((response) => {
+        data = response.data;
+      })
+      // console.log(response);
+      .then(() => fs.access(outputPath).catch(() => fs.mkdir(outputPath, { recursive: true })))
+      .then(() => {
+        // handle success
+        // fs.writeFile('outputPath7.txt', 'response');
+        // console.log(dirPath, 'dirPathhhhhh2');
+        // return fs.writeFile(dirPath, response.data);
+        console.log('3 TRY');
+        return fs.writeFile(dirPath, data);
+        // console.log(response.data);
+        // console.log(response.statusText);
+        // console.log(response.headers);
+        // console.log(response.config);
+      })
+      .catch((error) => {
+        // handle error
+        console.log(error);
+      })
+  );
   // .finally(() => {
   //   // always executed
   // });

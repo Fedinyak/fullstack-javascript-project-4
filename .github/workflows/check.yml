@@ -1,5 +1,5 @@
 # file: .github/workflows/hello-world.yml
-name: hello-world
+name: check
 # on – определяет события, которые запускают воркфлоу
 on: push
 jobs:
@@ -8,6 +8,9 @@ jobs:
   build:
     # операционная система для работы воркфлоу
     runs-on: ubuntu-latest
+    strategy:
+    matrix:
+      node-version: [16.x]
     steps: # список шагов, которые надо выполнить
       # экшен, выполняет какую-то задачу
       # checkout – клонирует репозиторий
@@ -15,6 +18,8 @@ jobs:
       - uses: actions/checkout@v2
       # Устанавливаем Node.js
       - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
       # Ставим зависимости
       - run: make install
       # Запускаем линтер

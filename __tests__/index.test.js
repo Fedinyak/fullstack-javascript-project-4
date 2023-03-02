@@ -19,38 +19,40 @@ beforeAll(() => {
   nock.disableNetConnect();
 });
 
-let outputPath;
+let filePath;
 
 beforeEach(async () => {
-  outputPath = await mkdtemp(path.join(os.tmpdir(), 'tempDir-'));
+  filePath = await mkdtemp(path.join(os.tmpdir(), 'tempDir-'));
 });
 
 test('copySite fn copy site', async () => {
-  console.log(outputPath, 'outputPath temp');
+  console.log(filePath, 'filePath temp');
 
   const result = await readFile(getFixturePath('ru-hexlet-io-courses.html'), 'utf-8');
   nock('https://ru.hexlet.io') // это регулярное выражение чтобы не указывать полный адрес
     // get – для GET-запросов, post – для POST-запросов и так далее
     .get('/courses')
     .reply(200, result);
-  // const copyFile = await readFile(getFixturePath('ru-hexlet-io-courses.html', 'utf-8'));
-  // const copyFile = await copySite(outputPath, url);
+  // const copiedHtml = await readFile(getFixturePath('ru-hexlet-io-courses.html', 'utf-8'));
+  // const copiedHtml = await copySite(filePath, url);
   // response.data
   // 'dir1/dir2' https://ru.hexlet.io/courses
   const url = 'https://ru.hexlet.io/courses';
-  // const outputPath = path.join();
-  // const outputPath = 'dir1/dir2';
-  const tempPath = path.join(__dirname, outputPath, 'ru-hexlet-io-courses.html');
+  // const filePath = path.join();
+  // const filePath = 'dir1/dir2';
+  // const tempPath = path.join(__dirname, filePath, 'ru-hexlet-io-courses.html');
+  // const tempPath = path.join(filePath);
+  // const tempPath = path.join(filePath, 'ru-hexlet-io-courses.html');
   // await copySite('tempPath', url);
-  await copySite(tempPath, url);
-  console.log(tempPath, 'tempPathhhhhh');
-  const copyFile = await readFile(path.join(tempPath, 'ru-hexlet-io-courses.html'), 'utf-8');
-  // const copyFile = await readFile('/tempPath', 'utf-8');
-  // const outputPath ='dir1/';
-  // console.log(outputPath, url, 'outputPath, url' )
+  await copySite(filePath, url);
+  console.log(filePath, 'tempPathhhhhh');
+  const copiedHtml = await readFile(path.join(filePath, 'ru-hexlet-io-courses.html'), 'utf-8');
+  // const copiedHtml = await readFile(tempPath, 'utf-8');
+  // const filePath ='dir1/';
+  // console.log(filePath, url, 'filePath, url' )
 
   // console.log(result)
-  expect(copyFile).toStrictEqual(result);
+  expect(copiedHtml).toStrictEqual(result);
   // expect(result).toStrictEqual(result);
 });
 afterAll(() => {

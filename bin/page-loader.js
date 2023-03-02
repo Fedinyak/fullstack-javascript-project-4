@@ -8,13 +8,13 @@ const program = new Command();
 program
   .name('page-loader')
   .description('Page loader utility')
-  .option('-o, --output [dir]', 'output dir', '/home/user/current-dir')
+  .option('-o, --output [dir]', 'output dir', process.cwd())
   .argument('<url>')
   .version('0.0.1')
-  .action((url, output) => {
-    console.log(output.output, url);
+  .action((url, option) => {
+    console.log(option.output, url);
     // const link = 'Some content!';
-    const path = output.output;
+    const path = option.output;
     // const path = 'testrRq.txt';
     copySite(path, url);
   });

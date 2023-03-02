@@ -16,11 +16,11 @@ jobs:
       # Устанавливаем Node.js
       - uses: actions/setup-node@v1
       # Ставим зависимости
-      - run: npm install
+      - run: make install
       # Запускаем линтер
-      - run: npm run lint
+      - run: make lint
       # Запускаем тесты
       # у шагов может быть имя, иногда это помогает отладке
       # имя выводится на Github при просмотре сборки
       - name: run tests
-        run: npm test # name и run относятся к одной задаче, поэтому дефис ставится только перед name
+        run: make test # name и run относятся к одной задаче, поэтому дефис ставится только перед name

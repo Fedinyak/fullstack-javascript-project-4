@@ -5,6 +5,8 @@ import axios from 'axios';
 import { cwd } from 'node:process';
 // const path = require('path');
 
+// -------------------------------------------------------------- FIIIIIIXXXXXXXXX
+// eslint-disable-next-line default-param-last
 const copySite = (outputPath = cwd(), url) => {
   console.log(outputPath, 'dirPath');
   // const normalizeUrl = new URL(url);
@@ -44,18 +46,16 @@ const copySite = (outputPath = cwd(), url) => {
   let data;
   return axios.get(url, { responseType: 'arraybuffer' })
     .then((response) => {
-      data = response.data
+      data = response.data;
     })
     // console.log(response);
-    .then(() => fs.access(outputPath).catch(() => {
-      return fs.mkdir(outputPath, { recursive: true });
-    }))
+    .then(() => fs.access(outputPath).catch(() => fs.mkdir(outputPath, { recursive: true })))
     .then(() => {
       // handle success
       // fs.writeFile('outputPath7.txt', 'response');
       // console.log(dirPath, 'dirPathhhhhh2');
       // return fs.writeFile(dirPath, response.data);
-      console.log('3 TRY')
+      console.log('3 TRY');
       return fs.writeFile(dirPath, data);
       // console.log(response.data);
       // console.log(response.statusText);
@@ -64,7 +64,7 @@ const copySite = (outputPath = cwd(), url) => {
     })
     .catch((error) => {
       // handle error
-      console.log(error)
+      console.log(error);
     });
   // .finally(() => {
   //   // always executed

@@ -5,11 +5,10 @@ import { fileURLToPath } from 'url';
 // import { dirname } from 'path';
 // import * as fs from 'fs';
 import { readFile, mkdtemp } from 'fs/promises';
-import copySite from '../src/index';
 import os from 'os';
+import copySite from '../src/index';
 
 console.log(os.tmpdir());
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,7 +26,7 @@ beforeEach(async () => {
 });
 
 test('copySite fn copy site', async () => {
-  console.log(outputPath, 'outputPath temp')
+  console.log(outputPath, 'outputPath temp');
 
   const result = await readFile(getFixturePath('ru-hexlet-io-courses.html'), 'utf-8');
   nock('https://ru.hexlet.io') // это регулярное выражение чтобы не указывать полный адрес
@@ -39,15 +38,15 @@ test('copySite fn copy site', async () => {
   // response.data
   // 'dir1/dir2' https://ru.hexlet.io/courses
   const url = 'https://ru.hexlet.io/courses';
-  // const outputPath = path.join(); 
+  // const outputPath = path.join();
   // const outputPath = 'dir1/dir2';
   const tempPath = path.join(__dirname, outputPath, 'ru-hexlet-io-courses.html');
   // await copySite('tempPath', url);
   await copySite(tempPath, url);
-  console.log(tempPath, 'tempPathhhhhh')
+  console.log(tempPath, 'tempPathhhhhh');
   const copyFile = await readFile(path.join(tempPath, 'ru-hexlet-io-courses.html'), 'utf-8');
   // const copyFile = await readFile('/tempPath', 'utf-8');
-  // const outputPath ='dir1/'; 
+  // const outputPath ='dir1/';
   // console.log(outputPath, url, 'outputPath, url' )
 
   // console.log(result)

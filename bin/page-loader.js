@@ -16,7 +16,7 @@ program
     // const link = 'Some content!';
     const path = option.output;
     // const path = 'testrRq.txt';
-    copySite(path, url);
+    copySite(url, path);
   });
 // .usage('[options] <url>'); // delete!!!!!!
 // .argument('[password]', 'password for user, if required', 'no password given')

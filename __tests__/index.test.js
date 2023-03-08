@@ -8,13 +8,13 @@ import { readFile, mkdtemp } from 'fs/promises';
 import os from 'os';
 import copySite from '../src/index';
 
-console.log(os.tmpdir());
-
+// console.log(os.tmpdir());
+const host = 'https://ru.hexlet.io';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
-// const getResultPath = (filename) => path.join(__dirname, '..', 'dir1', 'dir2', filename);
+// const getinitialHtmlPath = (filename) => path.join(__dirname, '..', 'dir1', 'dir2', filename);
 beforeAll(() => {
   nock.disableNetConnect();
 });
@@ -26,15 +26,20 @@ beforeEach(async () => {
 });
 
 test('copySite fn copy site', async () => {
-  console.log(filePath, 'filePath temp');
+  // console.log(filePath, 'filePath temp');
 
-  const result = await readFile(getFixturePath('ru-hexlet-io-courses.html'), 'utf-8');
-  nock('https://ru.hexlet.io') // это регулярное выражение чтобы не указывать полный адрес
+  const initialHtml = await readFile(getFixturePath('ru-hexlet-io-courses.html'), 'utf-8');
+  const image = await readFile(getFixturePath('node.png'), 'utf-8');
+  const resultHtml = await readFile(getFixturePath('ru-hexlet-io-courses-img.html'), 'utf-8');
+  nock(host) // это регулярное выражение чтобы не указывать полный адрес
     // get – для GET-запросов, post – для POST-запросов и так далее
     .get('/courses')
-    .reply(200, result);
-  // const copiedHtml = await readFile(getFixturePath('ru-hexlet-io-courses.html', 'utf-8'));
-  // const copiedHtml = await copySite(filePath, url);
+    .reply(200, initialHtml);
+  nock(host)
+    .get('/assets/professions/nodejs.png')
+    .reply(200, image);
+  // const downloadHtml = await readFile(getFixturePath('ru-hexlet-io-courses.html', 'utf-8'));
+  // const downloadHtml = await copySite(filePath, url);
   // response.data
   // 'dir1/dir2' https://ru.hexlet.io/courses
   const url = 'https://ru.hexlet.io/courses';
@@ -44,16 +49,21 @@ test('copySite fn copy site', async () => {
   // const tempPath = path.join(filePath);
   // const tempPath = path.join(filePath, 'ru-hexlet-io-courses.html');
   // await copySite('tempPath', url);
-  await copySite(filePath, url);
-  console.log(filePath, 'tempPathhhhhh');
-  const copiedHtml = await readFile(path.join(filePath, 'ru-hexlet-io-courses.html'), 'utf-8');
-  // const copiedHtml = await readFile(tempPath, 'utf-8');
+  await copySite(url, filePath);
+  // console.log(filePath, 'tempPathhhhhh');
+  const downloadHtml = await readFile(path.join(filePath, 'ru-hexlet-io-courses.html'), 'utf-8');
+  const downloadImg = await readFile(
+    path.join(filePath, 'ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png'),
+    'utf-8',
+  );
+  // const downloadHtml = await readFile(tempPath, 'utf-8');
   // const filePath ='dir1/';
   // console.log(filePath, url, 'filePath, url' )
 
-  // console.log(result)
-  expect(copiedHtml).toStrictEqual(result);
-  // expect(result).toStrictEqual(result);
+  // console.log(initialHtml)
+  expect(downloadHtml).toStrictEqual(resultHtml);
+  expect(downloadImg).toStrictEqual(image);
+  // expect(initialHtml).toStrictEqual(initialHtml);
 });
 afterAll(() => {
   nock.cleanAll();

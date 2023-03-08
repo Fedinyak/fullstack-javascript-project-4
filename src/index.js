@@ -3,62 +3,71 @@ import fs from 'node:fs/promises';
 import path from 'path';
 import axios from 'axios';
 import { cwd } from 'node:process';
-// const path = require('path');
-
-// -------------------------------------------------------------- FIIIIIIXXXXXXXXX
-// eslint-disable-next-line default-param-last
-const copySite = (outputPath = cwd(), url) => {
-  console.log(outputPath, 'dirPath');
-  // const normalizeUrl = new URL(url);
-  // const fileName = `${normalizeUrl.host}${normalizeUrl.pathname}`;
-  const fileName = url.replace('https://', '');
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as cheerio from 'cheerio';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import prettier from 'prettier';
+//        'https://ru.hexlet.io/courses'  'dir1/dir2'
+const copySite = (url, outputPath = cwd()) => {
+  //                      ru.hexlet.io/courses/
+  const urlConstructor = new URL(url);
+  const host = urlConstructor.hostname;
+  const originUrl = urlConstructor.origin;
+  const newHtmlName = url.replace('https://', '');
   const pattern = /[^0-9^a-z^A-Z]/;
-  const normalizeFileName = `${fileName.replaceAll(new RegExp(pattern, 'g'), '-')}.html`;
-  // console.log(fileName, 'fileName');
-  // console.log(normalizeFileName, 'normalizeFileName');
-  const dirPath = path.join(outputPath, normalizeFileName);
-  // const dirPath = fileName;
-  // const content = url;
+  const normalizeFileName = (name, extension = '') => `${name.replaceAll(new RegExp(pattern, 'g'), '-')}${extension}`;
+  //                         'dir1/dir2'                ru-hexlet-io-courses-img.html
+  const dirHtmlPath = path.join(outputPath, normalizeFileName(newHtmlName, '.html'));
+  const dirNamePath = normalizeFileName(newHtmlName, '_files');
+  const dirPath = path.join(outputPath, dirNamePath);
 
-  // try {
-  //   fs.mkdir(outputPath, { recursive: true }, (err) => {
-  //     if (err) throw err;
-  //   });
-  // } catch (err) {
-  //   console.error(err.message);
-  // }
-  // try {
-  //   fs.writeFile(dirPath, content, (err) => {
-  //     if (err) {
-  //       console.error(err);
-  //     }
-  //     // file written successfully
-  //   });
-  // } catch (err) {
-  //   console.error(err.message);
-  // }
-  // ----------------------------------------------------------------------------------------------
-  // const getContent = fsp.readFile(fs.writeFile(dirPath, content, (err)));
-  // fs.writeFile('outputPath1.txt', 'response');
-  // console.log(url, 'axioooos url')
-  // console.log(dirPath, 'dirPathhhhhh1');
-  // console.log(cwd(), 'dirPathhhhhhh cwd');
-  let data;
+  let $html;
   return (
     axios
       .get(url, { responseType: 'arraybuffer' })
       .then((response) => {
-        data = response.data;
+        $html = cheerio.load(response.data);
       })
-      // console.log(response);
-      .then(() => fs.access(outputPath).catch(() => fs.mkdir(outputPath, { recursive: true })))
+      .then(() => fs.access(dirPath).catch(() => fs.mkdir(dirPath, { recursive: true })))
+      .then(() => {
+        $html('img').each((i, e) => {
+          //                "/assets/professions/nodejs.png"
+          const originAttr = $html(e).attr('src');
+          const newAttr = originAttr.replaceAll('/', '-');
+          const normalizeHost = normalizeFileName(host);
+          // const selector = `${tag}[${attr}="${originAttr}"]`;
+          // $(selector).attr(attr, newSrc);
+          // '[data-selected=true]'
+          // const selector = '[src="sdfasdfsadfassets/professions/nodejs.png"]';
+          // $html(`[src="${originAttr}"]`).replaceWith(normalizeFileName(originAttr));
+          // src="ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png"
+          // src="ru-hexlet-io-courses_files/assets/professions/nodejs.png"
+          const newFileName = path.join(dirNamePath, `${normalizeHost}${newAttr}`);
+          $html(`[src="${originAttr}"]`).attr('src', newFileName);
+          // const data = img.replace(/^data:image\/\w+;base64,/, '');
+          // const buf = Buffer.from(data, 'base64');
+          // fs.writeFile('image.png', buf /* callback will go here */);
+          console.log(path.join(originUrl, originAttr));
+          // console.log(originUrl);
+          axios
+            .get(path.join(originUrl, originAttr), { responseType: 'arraybuffer' })
+            .then((response) => {
+              const downloadImg = Buffer.from(response.data, 'binary');
+              return fs.writeFile(path.join(dirPath, `${normalizeHost}${newAttr}`), downloadImg);
+            })
+            .catch((error) => {
+              // handle error
+              console.log(error);
+            });
+          // $html(`${originAttr}`).replaceWith('newFileName', 'fdasf');
+          // return $html(e);
+        });
+      })
+      // eslint-disable-next-line arrow-body-style
       .then(() => {
         // handle success
-        // fs.writeFile('outputPath7.txt', 'response');
-        // console.log(dirPath, 'dirPathhhhhh2');
-        // return fs.writeFile(dirPath, response.data);
-        console.log('3 TRY');
-        return fs.writeFile(dirPath, data);
+        // console.log($html);
+        return fs.writeFile(dirHtmlPath, prettier.format($html.html(), { parser: 'html' }));
         // console.log(response.data);
         // console.log(response.statusText);
         // console.log(response.headers);

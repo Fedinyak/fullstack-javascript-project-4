@@ -7,21 +7,40 @@ import { cwd } from 'node:process';
 import * as cheerio from 'cheerio';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import prettier from 'prettier';
-//        'https://ru.hexlet.io/courses'  'dir1/dir2'
+// eslint-disable-next-line import/no-extraneous-dependencies
+import debug from 'debug';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'axios-debug-log';
+
+const log = debug('page-loader');
+
+const pattern = /[^0-9^a-z^A-Z]/;
+const normalizeFileName = (name, extension = '') => `${name.replaceAll(new RegExp(pattern, 'g'), '-')}${extension}`;
+
 const copySite = (url, outputPath = cwd()) => {
-  //                      ru.hexlet.io/courses/
   const urlConstructor = new URL(url);
+  log('Site address %s', url);
+  log('Download path %s', outputPath);
   const host = urlConstructor.hostname;
   const originUrl = urlConstructor.origin;
-  const newHtmlName = url.replace('https://', '');
-  const pattern = /[^0-9^a-z^A-Z]/;
-  const normalizeFileName = (name, extension = '') => `${name.replaceAll(new RegExp(pattern, 'g'), '-')}${extension}`;
-  //                         'dir1/dir2'                ru-hexlet-io-courses-img.html
+  const newHtmlName = url.replace(`${urlConstructor.protocol}//`, '');
+  const normalizeHost = normalizeFileName(host);
   const dirHtmlPath = path.join(outputPath, normalizeFileName(newHtmlName, '.html'));
   const dirNamePath = normalizeFileName(newHtmlName, '_files');
   const dirPath = path.join(outputPath, dirNamePath);
+  const tags = { img: 'src', link: 'href', script: 'src' };
+  const tagsKeys = Object.keys(tags);
 
   let $html;
+  // <link href="/assets/application.css" />
+  // <link href="ru-hexlet-io-courses_files/ru-hexlet-io-assets-application.css" />
+  // const assetsAttr = {};
+
+  // '[href="/assets/application.css"]':
+  //   '[href="ru-hexlet-io-courses_files/ru-hexlet-io-assets-application.css"]',
+  // href='/assets/application.css'
+  // tags[key]="${originAttr
+  // const assetsDownload = [];
   return (
     axios
       .get(url, { responseType: 'arraybuffer' })
@@ -29,39 +48,77 @@ const copySite = (url, outputPath = cwd()) => {
         $html = cheerio.load(response.data);
       })
       .then(() => fs.access(dirPath).catch(() => fs.mkdir(dirPath, { recursive: true })))
+      // .then(() => {
+      //   tagsKeys.map((key) => $html(key).each((i, selector) => {
+      //     const originAttr = $html(selector).attr(tags[key]);
+      //     let newAttr;
+      //     let downloadFilePath;
+      //     if (originAttr.includes('http')) {
+      //       const newAttrUrl = new URL(originAttr);
+      //       if (newAttrUrl.hostname !== host) {
+      //         return;
+      //       }
+      //       downloadFilePath = path.join(originAttr);
+      //     } else {
+      //       downloadFilePath = path.join(originUrl, originAttr);
+      //     }
+      //     if (!newAttr.includes('.')) {
+      //       newAttr = `${newAttr}.html`;
+      //     }
+      //     const normalizeHost = normalizeFileName(host);
+      //     const newFilePath = path.join(dirNamePath, `${normalizeHost}${newAttr}`);
+      //     $html(`[${tags[key]}="${originAttr}"]`).attr(tags[key], newFilePath);
+      //   }));
+      // })
       .then(() => {
-        $html('img').each((i, e) => {
-          //                "/assets/professions/nodejs.png"
-          const originAttr = $html(e).attr('src');
-          const newAttr = originAttr.replaceAll('/', '-');
-          const normalizeHost = normalizeFileName(host);
-          // const selector = `${tag}[${attr}="${originAttr}"]`;
-          // $(selector).attr(attr, newSrc);
-          // '[data-selected=true]'
-          // const selector = '[src="sdfasdfsadfassets/professions/nodejs.png"]';
-          // $html(`[src="${originAttr}"]`).replaceWith(normalizeFileName(originAttr));
-          // src="ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png"
-          // src="ru-hexlet-io-courses_files/assets/professions/nodejs.png"
-          const newFileName = path.join(dirNamePath, `${normalizeHost}${newAttr}`);
-          $html(`[src="${originAttr}"]`).attr('src', newFileName);
-          // const data = img.replace(/^data:image\/\w+;base64,/, '');
-          // const buf = Buffer.from(data, 'base64');
-          // fs.writeFile('image.png', buf /* callback will go here */);
-          console.log(path.join(originUrl, originAttr));
-          // console.log(originUrl);
+        // src="https://ru.hexlet.io/packs/js/runtime.js"
+        tagsKeys.map((key) => $html(key).each((i, selector) => {
+          const originAttr = $html(selector).attr(tags[key]);
+          if (!originAttr) {
+            return;
+          }
+          let newAttr;
+          let downloadFilePath;
+          if (originAttr.includes('http')) {
+            const newAttrUrl = new URL(originAttr);
+            if (newAttrUrl.hostname !== host) {
+              // newAttr = originAttr;
+              return;
+              // return newAttr;
+              // console.log(newAttrUrl.hostname, host, 'newAttrUrl.hostname !== host');
+            }
+            newAttr = newAttrUrl.pathname.replaceAll('/', '-');
+            downloadFilePath = path.join(originAttr);
+          } else {
+            newAttr = originAttr.replaceAll('/', '-');
+            downloadFilePath = path.join(originUrl, originAttr);
+          }
+          if (!newAttr.includes('.')) {
+            newAttr = `${newAttr}.html`;
+          }
+          // console.log(originAttr, 'originAttr');
+          const newFilePath = path.join(dirNamePath, `${normalizeHost}${newAttr}`);
+          // assetsAttr[`[${tags[key]}="${originAttr}"]`] = `[${tags[key]}="${newFilePath}"]`;
+          $html(`[${tags[key]}="${originAttr}"]`).attr(tags[key], newFilePath);
+          // assetsDownload.push(downloadFilePath, 'downloadFilePath');
+          // console.log(downloadFilePath, 'paaaaaath to download');
+          // console.log(path.join(originUrl, originAttr));
+
           axios
-            .get(path.join(originUrl, originAttr), { responseType: 'arraybuffer' })
+          // .get(path.join(originUrl, originAttr), { responseType: 'arraybuffer' })
+            .get(downloadFilePath, { responseType: 'arraybuffer' })
             .then((response) => {
-              const downloadImg = Buffer.from(response.data, 'binary');
-              return fs.writeFile(path.join(dirPath, `${normalizeHost}${newAttr}`), downloadImg);
+              const downloadData = Buffer.from(response.data, 'binary');
+              log('Download file %s', newAttr);
+              return fs.writeFile(path.join(dirPath, `${normalizeHost}${newAttr}`), downloadData);
             })
             .catch((error) => {
-              // handle error
-              console.log(error);
+              console.error(error.data);
+              throw new Error(error.message);
             });
-          // $html(`${originAttr}`).replaceWith('newFileName', 'fdasf');
           // return $html(e);
-        });
+          // console.log(downloadFilePath, 'downloadFilePath');
+        }));
       })
       // eslint-disable-next-line arrow-body-style
       .then(() => {
@@ -74,8 +131,36 @@ const copySite = (url, outputPath = cwd()) => {
         // console.log(response.config);
       })
       .catch((error) => {
+        // if (error.response) {
+        //   // The request was made and the server responded with a status code
+        //   // that falls out of the range of 2xx
+        //   console.error(error.response.data, '-----------------------error.response.data');
+        //   console.error(error.response.status, '-----------------------error.response.status');
+        //   console.error(error.response.headers, '-----------------------error.response.headers');
+        // } else if (error.request) {
+        //   // The request was made but no response was received
+        //   // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        //   // http.ClientRequest in node.js
+        //   console.error(error.request, '-----------------------error.request');
+        // } else {
+        //   // Something happened in setting up the request that triggered an Error
+        //   console.error('Error', error.message, '-----------------------error.message');
+        // }
+        // console.error(error.config, '-----------------------config');
+        // console.error(error.toJSON(), ' console.log(error.toJSON());');
         // handle error
-        console.log(error);
+        // errno: -3008,
+        // code: 'ENOTFOUND',
+        // syscall: 'getaddrinfo',
+        // hostname: 'ru.hexl'
+        // console.error(error.response.data);
+        // console.error(error.response.status);
+        // console.error(error.response.headers);
+        // log(error.message);
+        console.error(error.message);
+        throw new Error(error.message);
+        // throw new Error(`${error.config}error.configggggggggg`);
+        // console.error(error.message);
       })
   );
   // .finally(() => {

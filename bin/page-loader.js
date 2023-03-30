@@ -12,7 +12,7 @@ program
   .argument('<url>')
   .version('0.0.1')
   .action((url, option) => {
-    console.log(option.output, url);
+    // console.log(option.output, url);
     // const link = 'Some content!';
     const path = option.output;
     // const path = 'testrRq.txt';
@@ -26,8 +26,8 @@ program
 // });
 // program.parse(process.argv);
 program.parse();
-const options = program.opts();
-if (options.output) console.log(options.output);
+// const options = program.opts();
+// if (options.output) console.log(options.output);
 
 // if (options.pizzaType) console.log(`- ${options.pizzaType}`);
 // program.command('split')

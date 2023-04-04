@@ -11,6 +11,7 @@ import prettier from 'prettier';
 import debug from 'debug';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'axios-debug-log';
+import Listr from 'listr';
 
 const log = debug('page-loader');
 
@@ -30,6 +31,8 @@ const copySite = (url, outputPath = cwd()) => {
   const dirPath = path.join(outputPath, dirNamePath);
   const tags = { img: 'src', link: 'href', script: 'src' };
   const tagsKeys = Object.keys(tags);
+  const tasks = new Listr([]);
+  // const assetsTask = new Listr([], { concurrent: true });
 
   let $html;
   // <link href="/assets/application.css" />
@@ -104,7 +107,7 @@ const copySite = (url, outputPath = cwd()) => {
           // console.log(downloadFilePath, 'paaaaaath to download');
           // console.log(path.join(originUrl, originAttr));
 
-          axios
+          const request = axios
           // .get(path.join(originUrl, originAttr), { responseType: 'arraybuffer' })
             .get(downloadFilePath, { responseType: 'arraybuffer' })
             .then((response) => {
@@ -116,6 +119,12 @@ const copySite = (url, outputPath = cwd()) => {
               console.error(error.data);
               throw new Error(error.message);
             });
+          const task = {
+            title: `Download ${downloadFilePath}`,
+            task: () => request,
+          };
+          tasks.add(task);
+          tasks.run();
           // return $html(e);
           // console.log(downloadFilePath, 'downloadFilePath');
         }));

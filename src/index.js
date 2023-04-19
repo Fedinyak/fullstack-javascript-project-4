@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'path';
 import axios from 'axios';
-import { cwd } from 'node:process';
+// import { cwd } from 'node:process';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import * as cheerio from 'cheerio';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -18,7 +18,7 @@ const log = debug('page-loader');
 const pattern = /[^0-9^a-z^A-Z]/;
 const normalizeFileName = (name, extension = '') => `${name.replaceAll(new RegExp(pattern, 'g'), '-')}${extension}`;
 
-const copySite = (url, outputPath = cwd()) => {
+const copySite = (url, outputPath = process.cwd()) => {
   const urlConstructor = new URL(url);
   log('Site address %s', url);
   log('Download path %s', outputPath);

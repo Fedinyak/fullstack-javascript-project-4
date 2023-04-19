@@ -50,7 +50,20 @@ const copySite = (url, outputPath = cwd()) => {
       .then((response) => {
         $html = cheerio.load(response.data);
       })
-      .then(() => fs.access(dirPath).catch(() => fs.mkdir(dirPath, { recursive: true })))
+      // .then(() => fs.access(dirPath).catch(() => fs.mkdir(dirPath, { recursive: true })))
+      .then(
+        (responses) => new Promise((resolve) => {
+          fs.access(dirPath)
+            .then(() => resolve(responses))
+            .catch(() => {
+              fs.mkdir(dirPath, { recursive: true })
+                .then(() => resolve(responses))
+                .catch((error) => {
+                  throw new Error(error);
+                });
+            });
+        }),
+      )
       // .then(() => {
       //   tagsKeys.map((key) => $html(key).each((i, selector) => {
       //     const originAttr = $html(selector).attr(tags[key]);

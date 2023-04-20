@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Command } from 'commander';
-import copySite from '../src/index.js';
+import PageLoader from '../src/index.js';
 
 const program = new Command();
 
@@ -16,7 +16,7 @@ program
     // const link = 'Some content!';
     const path = option.output;
     // const path = 'testrRq.txt';
-    copySite(url, path);
+    PageLoader(url, path);
   });
 // .usage('[options] <url>'); // delete!!!!!!
 // .argument('[password]', 'password for user, if required', 'no password given')
@@ -25,7 +25,7 @@ program
 //   console.log('password:', password);
 // });
 // program.parse(process.argv);
-program.parse();
+program.parse(process.argv);
 // const options = program.opts();
 // if (options.output) console.log(options.output);
 

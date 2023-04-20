@@ -124,7 +124,8 @@ const copySite = (url, outputPath = process.cwd()) => {
           // .get(path.join(originUrl, originAttr), { responseType: 'arraybuffer' })
             .get(downloadFilePath, { responseType: 'arraybuffer' })
             .then((response) => {
-              const downloadData = Buffer.from(response.data, 'binary');
+              // const downloadData = Buffer.from(response.data, 'binary');
+              const downloadData = response.data;
               log('Download file %s', newAttr);
               return fs.writeFile(path.join(dirPath, `${normalizeHost}${newAttr}`), downloadData);
             })
